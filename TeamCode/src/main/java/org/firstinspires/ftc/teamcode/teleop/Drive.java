@@ -13,11 +13,11 @@ public class Drive {
     private Double headingLock = null;    // radians; null = free turn
 
     // Tunables
-    private double deadzone = 0.05;
-    private double slowTransScale = 0.35;
-    private double slowTurnScale = 0.45;
-    private double holdKp = 2.0;   // heading lock P gain
-    private double holdClamp = 0.8;   // max |turn| while locked
+    public static final double deadzone = 0.05;
+    private static final double slowTransScale = 0.35;
+    private static final double slowTurnScale = 0.45;
+    private static final double holdKp = 2.0;   // heading lock P gain
+    private static final double holdClamp = 0.8;   // max |turn| while locked
 
     public Drive(HardwareMap hw) {
         follower = Constants.createFollower(hw);

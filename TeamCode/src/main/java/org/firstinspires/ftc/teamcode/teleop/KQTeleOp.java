@@ -1,19 +1,29 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.pedropathing.geometry.Pose;
 
-import org.firstinspires.ftc.teamcode.shared.Outtake;
+import org.firstinspires.ftc.teamcode.shared.Goal;
+import org.firstinspires.ftc.teamcode.shared.PathBuilder;
+import org.firstinspires.ftc.teamcode.shared.takes.Intake;
+import org.firstinspires.ftc.teamcode.shared.takes.Midtake;
+import org.firstinspires.ftc.teamcode.shared.takes.Outtake;
 import org.firstinspires.ftc.teamcode.shared.AimController;
 
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Drive – Pedro", group = "T")
-public class TeleOp extends OpMode {
+public class KQTeleOp extends OpMode {
     private Drive drive;
+    private Intake intake;
+    private Midtake midtake;
     private Outtake outtake;
     private AimController aimController;
 
-    private boolean aPrev, bPrev, xPrev, yPrev;
+    private Goal goal;
+
+    private boolean aPrev, bPrev, xPrev, yPrev, following;
     private static final double AIM_HEADING_TOL_RAD = Math.toRadians(2.0); // 2°
 
     @Override public void init() {
@@ -24,14 +34,9 @@ public class TeleOp extends OpMode {
         // Shooter: names must match your RC config
         outtake = new Outtake(hardwareMap, "outtakeMotor" ); // or pass null if no hood
 
-        // Pick alliance target. Example goal positions (replace with real field coords):
-        // Red goal at (144, 72), Blue goal at (0, 72) — adjust to your game setup!
-        boolean isRed = true; // set from a gamepad toggle or dashboard
-        double goalX = isRed ? 144.0 : 0.0;
-        double goalY = 72.0;
-
-
-
+        // Targets are in AimController
+        this.goal = Goal.BLUE; // TODO: Update this to read April Tag
+        this.following = false;
     }
 
     @Override public void start() {
@@ -40,6 +45,14 @@ public class TeleOp extends OpMode {
 
 
     @Override public void loop() {
+
+        follower.update();
+
+        if (this.following && !follower.isBusy()) this.following = false;
+
+        if(this.following)
+            return;
+
         // Stick mapping (FTC docs & Pedro example use negatives on left axes)
         double fwd = -gamepad1.left_stick_y; // + forward
         double str = -gamepad1.left_stick_x; // + right (note Pedro example uses negative)
@@ -65,25 +78,27 @@ public class TeleOp extends OpMode {
 
         if (gamepad1.right_bumper) {
             // 1) Snap heading toward goal
-            double theta = autoAim.targetHeading(p);
+            double theta = aimController.targetHeading(p, this.goal);
             drive.setHeadingLock(theta);
 
-            // 2) Spin shooter based on distance (and hood if present)
-            outtake.setTarget(autoAim.rpmFor(p), autoAim.hoodFor(p));
+            // 2) Spin robot to match target
+            follower.followPath(PathBuilder.getRotationPath(p, aimController.targetHeading(p, this.goal)));
+            following = true;
+
         } else {
             // release heading lock when not aiming
             if (drive.getHeadingLock() != null) drive.setHeadingLock(null);
         }
 
-        boolean aligned = Math.abs(wrap(autoAim.targetHeading(p) - p.getHeading())) < AIM_HEADING_TOL_RAD;
+        if (gamepad1.right_trigger > Drive.deadzone)
+
+        boolean aligned = Math.abs(wrap(aimController.targetHeading(p, this.goal) - p.getHeading())) < AIM_HEADING_TOL_RAD;
         boolean ready   = outtake.atSpeed();
 
         if (gamepad1.left_bumper && aligned && ready) {
             // TODO: actuate your feed/trigger here (servo or motor)
             // e.g., feeder.setPosition(0.75); sleep 120ms; back to 0.25 (do non-blocking in OpMode!)
         }
-
-// … existing driving code …
 
     }
 
