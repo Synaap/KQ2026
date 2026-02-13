@@ -20,6 +20,8 @@ public class AimController {
         this.wheelRadius = radius;
     }
 
+
+
     public double calculateSpeed(Pose robot, Goal goal){
         return Math.sqrt((this.distance(robot, goal) * 386.1)/Math.sin(2*Math.toRadians(this.exitAngle))); // 386.1 is G constant in inch/s^2
     }

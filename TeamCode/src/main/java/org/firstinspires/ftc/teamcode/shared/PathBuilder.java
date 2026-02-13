@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.shared;
 
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.FuturePose;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
@@ -35,6 +37,13 @@ public class PathBuilder {
                 .setLinearHeadingInterpolation(robot.getHeading(), 0)
                 .build();
 
+    }
+
+    public static PathChain getRedAutoPath(Pose robot){
+        return follower.pathBuilder()
+                .addPath(new BezierCurve(robot, new Pose(), new Pose()))
+                .setLinearHeadingInterpolation(robot.getHeading(), robot.getHeading())
+                .build();
     }
 
 }
