@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.shared.takes;
 
 public class Intake {
+    public Intake({
 }

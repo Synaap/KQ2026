@@ -8,7 +8,8 @@ public class KQAutoRedClose extends KQAuto {
 
     @Override
     public void initStartPose(){
-        this.startPose = new Pose();
+
+
     }
     @Override
     public void buildPaths(){

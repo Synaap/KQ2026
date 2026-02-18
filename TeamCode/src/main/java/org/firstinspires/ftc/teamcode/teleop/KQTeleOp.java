@@ -92,8 +92,8 @@ public class KQTeleOp extends OpMode {
 
         if (gamepad1.right_trigger > Drive.deadzone)
 
-        boolean aligned = Math.abs(wrap(aimController.targetHeading(p, this.goal) - p.getHeading())) < AIM_HEADING_TOL_RAD;
-        boolean ready   = outtake.atSpeed();
+        //boolean aligned = Math.abs(wrap(aimController.targetHeading(p, this.goal) - p.getHeading())) < AIM_HEADING_TOL_RAD;
+        boolean ready = outtake.atSpeed();
 
         if (gamepad1.left_bumper && aligned && ready) {
             // TODO: actuate your feed/trigger here (servo or motor)
@@ -105,7 +105,7 @@ public class KQTeleOp extends OpMode {
     @Override public void stop() { drive.stop(); }
 
     private static double wrap(double a){
-        while(a> Math.PI) a-=2*Math.PI;
+        while(-> Math.PI) a-=2*Math.PI;
         while(a<-Math.PI) a+=2*Math.PI;
         return a;
     }
