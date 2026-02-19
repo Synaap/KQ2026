@@ -4,8 +4,8 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
-import com.pedropathing.geometry.FuturePose;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 
 public class PathBuilder {
@@ -14,6 +14,7 @@ public class PathBuilder {
     private static final int PARK_X_RED  = 57;
     private static final int PARK_Y      = 33;
 
+    // Get a path with the new heading, just rotating it in place.
     public static PathChain getRotationPath(Pose robot, double targetHeading){
         Pose newHeading = new Pose(robot.getX(), robot.getY(), targetHeading);
 
@@ -21,8 +22,10 @@ public class PathBuilder {
                 .addPath(new BezierLine(robot, newHeading))
                 .build();
 
+
     }
 
+    // Get a path to park where we need.
     public static PathChain getParkingPath(Pose robot, Goal goal){
 
         Pose newHeading;
@@ -37,13 +40,6 @@ public class PathBuilder {
                 .setLinearHeadingInterpolation(robot.getHeading(), 0)
                 .build();
 
-    }
-
-    public static PathChain getRedAutoPath(Pose robot){
-        return follower.pathBuilder()
-                .addPath(new BezierCurve(robot, new Pose(), new Pose()))
-                .setLinearHeadingInterpolation(robot.getHeading(), robot.getHeading())
-                .build();
     }
 
 }

@@ -1,5 +1,33 @@
 package org.firstinspires.ftc.teamcode.shared.takes;
 
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 public class Intake {
-    public Intake({
+
+    DcMotorEx intakeMotor;
+    private final double RPS = 10.0f;
+
+    public Intake(HardwareMap hw){
+        this.intakeMotor = hw.get(DcMotorEx.class, "intakeMotor");
+    }
+
+    public void enableIntake(){ intakeMotor.setVelocity(RPS, AngleUnit.DEGREES); }
+
+    public void disableIntake() { intakeMotor.setVelocity(RPS, AngleUnit.DEGREES); }
+
+    public boolean atSpeed() { return intakeMotor.getVelocity() >= RPS; }
+
+    public boolean stopped() { return intakeMotor.getVelocity() == 0.0f; }
+
+    public void reverse() {
+        if (this.intakeMotor.getDirection() == DcMotorSimple.Direction.FORWARD)
+            this.intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        else
+            this.intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+    }
+
 }

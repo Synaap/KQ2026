@@ -42,11 +42,11 @@ public class Midtake {
         this.midtakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pc);
     }
 
-    public void startMidtake(){
-        this.midtakeMotor.setVelocity(100.0f, AngleUnit.DEGREES);
+    public void enableMidtake(){
+        this.midtakeMotor.setVelocity(10.0f, AngleUnit.DEGREES);
     }
 
-    public void stopMidtake(){
+    public void disableMidtake(){
         this.midtakeMotor.setPower(0.0f);
     }
 
