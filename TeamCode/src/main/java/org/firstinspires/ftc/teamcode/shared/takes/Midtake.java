@@ -13,6 +13,7 @@ public class Midtake {
     private HardwareMap hw;
     private Servo lock;
     private DcMotorEx midtakeMotor;
+    private double RPS = 360 * 100 /*RPM*/ / 60;
     private final double OPEN_ANGLE = 1.0f/8;
     private final double CLOSE_ANGLE = 0.0f;
 
@@ -22,7 +23,6 @@ public class Midtake {
         this.lock = hw.get(Servo.class, "lockServo");
         this.midtakeMotor = hw.get(DcMotorEx.class, "midtakeMotor");
         this.setMidtakeDirection(DcMotorSimple.Direction.FORWARD);
-        this.setMidtakeCoefficients();
         this.closeLock();
     }
     public void openLock(){
@@ -37,13 +37,8 @@ public class Midtake {
         return Math.abs(lock.getPosition() - OPEN_ANGLE) < 1.0f;
     }
 
-    public void setMidtakeCoefficients(){
-        PIDFCoefficients pc = new PIDFCoefficients(0.1f, 0.0f, 0.0f, 0.2f);
-        this.midtakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pc);
-    }
-
     public void enableMidtake(){
-        this.midtakeMotor.setVelocity(10.0f, AngleUnit.DEGREES);
+        this.midtakeMotor.setVelocity(RPS, AngleUnit.DEGREES);
     }
 
     public void disableMidtake(){
