@@ -2,9 +2,12 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.pedropathing.geometry.Pose;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.shared.Goal;
 import org.firstinspires.ftc.teamcode.shared.PathBuilder;
 import org.firstinspires.ftc.teamcode.shared.takes.Intake;
@@ -20,19 +23,24 @@ public class KQTeleOp extends OpMode {
     private Midtake midtake;
     private Outtake outtake;
     private AimController aimController;
+    private Follower follower;
 
     private Goal goal;
 
     private boolean aPrev, bPrev, xPrev, yPrev, following;
-    private static final double AIM_HEADING_TOL_RAD = Math.toRadians(2.0); // 2°
 
     @Override public void init() {
         drive = new Drive(hardwareMap);
         telemetry.addLine("Init OK: A=Slow, B=FieldCentric, X=Lock 90°, Y=Free");
         telemetry.update();
 
-        // Shooter: names must match your RC config
-        outtake = new Outtake(hardwareMap, "outtakeMotor" ); // or pass null if no hood
+        intake = new Intake(hardwareMap);
+        midtake = new Midtake(hardwareMap);
+        outtake = new Outtake(hardwareMap); // or pass null if no hood
+
+        follower = Constants.createFollower(hardwareMap);
+
+        aimController = new AimController(58.0f, 0.2f, 0.072f);
 
         // Targets are in AimController
         this.goal = Goal.BLUE; // TODO: Update this to read April Tag
@@ -79,35 +87,48 @@ public class KQTeleOp extends OpMode {
         if (gamepad1.right_bumper) {
             // 1) Snap heading toward goal
             double theta = aimController.targetHeading(p, this.goal);
-            drive.setHeadingLock(theta);
-
-            // 2) Spin robot to match target
-            follower.followPath(PathBuilder.getRotationPath(p, aimController.targetHeading(p, this.goal)));
-            following = true;
-
+            outtake.aimTurret(p, theta);
         } else {
             // release heading lock when not aiming
             if (drive.getHeadingLock() != null) drive.setHeadingLock(null);
         }
 
-        if (gamepad1.right_trigger > Drive.deadzone){
+        // TODO: PLEASE MAKE THIS LOOK PRETTY
+        if (gamepad1.right_trigger > Drive.deadzone) {
+            this.outtake.enableOuttake(aimController.calculateMotorVelocity(follower.getPose(), this.goal));
+            if(this.outtake.atSpeed())
+                this.midtake.openLock();
+        } else {
+            this.midtake.closeLock();
+            this.outtake.disableOuttake();
+        }
 
-            boolean aligned = Math.abs(wrap(aimController.targetHeading(p, this.goal) - p.getHeading())) < AIM_HEADING_TOL_RAD;
-            boolean ready = outtake.atSpeed();
+        // Close lock, disable
 
+        if (gamepad1.left_trigger > Drive.deadzone) {
+            this.intake.enableIntake();
+            this.midtake.enableMidtake();
+        } else {
+            this.intake.disableIntake();
+            this.midtake.disableMidtake();
+        }
+
+        /*
         if (gamepad1.left_bumper && aligned && ready) {
             // TODO: actuate your feed/trigger here (servo or motor)
             // e.g., feeder.setPosition(0.75); sleep 120ms; back to 0.25 (do non-blocking in OpMode!)
         }
+        */
 
     }
 
     @Override public void stop() { drive.stop(); }
 
+    /*
     private static double wrap(double a){
         while(a-> Math.PI) a-=2*Math.PI;
         while(a<-Math.PI) a+=2*Math.PI;
         return a;
     }
-
+    */
 }

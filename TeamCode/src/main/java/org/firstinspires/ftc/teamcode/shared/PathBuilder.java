@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.shared;
 
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 
+import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -15,7 +16,7 @@ public class PathBuilder {
     private static final int PARK_Y      = 33;
 
     // Get a path with the new heading, just rotating it in place.
-    public static PathChain getRotationPath(Pose robot, double targetHeading){
+    public static PathChain getRotationPath(Follower follower, Pose robot, double targetHeading){
         Pose newHeading = new Pose(robot.getX(), robot.getY(), targetHeading);
 
         return follower.pathBuilder()
@@ -26,7 +27,7 @@ public class PathBuilder {
     }
 
     // Get a path to park where we need.
-    public static PathChain getParkingPath(Pose robot, Goal goal){
+    public static PathChain getParkingPath(Follower follower, Pose robot, Goal goal){
 
         Pose newHeading;
 

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto; // make sure this aligns with class location
 
+import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;

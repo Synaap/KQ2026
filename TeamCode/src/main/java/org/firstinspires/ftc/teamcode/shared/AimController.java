@@ -17,10 +17,8 @@ public class AimController {
     public AimController(double theta, double slip, double radius){
         this.exitAngle   = theta;
         this.slip        = slip;
-        this.wheelRadius = radius;
+        this.wheelRadius = radius; // In
     }
-
-
 
     public double calculateSpeed(Pose robot, Goal goal){
         return Math.sqrt((this.distance(robot, goal) * 386.1)/Math.sin(2*Math.toRadians(this.exitAngle))); // 386.1 is G constant in inch/s^2

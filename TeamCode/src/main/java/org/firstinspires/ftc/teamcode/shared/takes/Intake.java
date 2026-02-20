@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class Intake {
 
     DcMotorEx intakeMotor;
-    private final double RPS = 10.0f;
+    private final double RPS = 360.0 * 10.0f;
 
     public Intake(HardwareMap hw){
         this.intakeMotor = hw.get(DcMotorEx.class, "intakeMotor");
@@ -17,7 +17,7 @@ public class Intake {
 
     public void enableIntake(){ intakeMotor.setVelocity(RPS, AngleUnit.DEGREES); }
 
-    public void disableIntake() { intakeMotor.setVelocity(RPS, AngleUnit.DEGREES); }
+    public void disableIntake() { intakeMotor.setPower(0.0f); }
 
     public boolean atSpeed() { return intakeMotor.getVelocity() >= RPS; }
 
@@ -28,6 +28,10 @@ public class Intake {
             this.intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         else
             this.intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+    }
+
+    public DcMotorSimple.Direction getDirection(){
+        return intakeMotor.getDirection();
     }
 
 }

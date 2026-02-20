@@ -46,6 +46,8 @@ public class KQAuto extends OpMode {
     @Override
     public void init() {
 
+        this.follower = Constants.createFollower(hardwareMap);
+
         aprilTag = new AprilTagProcessor.Builder()
                 .setDrawAxes(true)
                 .setDrawTagOutline(true)

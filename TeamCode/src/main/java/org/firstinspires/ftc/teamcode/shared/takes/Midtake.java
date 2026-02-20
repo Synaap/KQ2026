@@ -1,19 +1,19 @@
 package org.firstinspires.ftc.teamcode.shared.takes;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class Midtake {
     private HardwareMap hw;
     private Servo lock;
+    private ServoController lockController;
     private DcMotorEx midtakeMotor;
-    private double RPS = 360 * 100 /*RPM*/ / 60;
+    private double RPS = fromRPM(200);
     private final double OPEN_ANGLE = 1.0f/8;
     private final double CLOSE_ANGLE = 0.0f;
 
@@ -34,7 +34,7 @@ public class Midtake {
     }
 
     public boolean isLockOpen(){
-        return Math.abs(lock.getPosition() - OPEN_ANGLE) < 1.0f;
+        return Math.abs(lock.getPosition() - OPEN_ANGLE) < 0.1f;
     }
 
     public void enableMidtake(){
@@ -47,6 +47,10 @@ public class Midtake {
 
     public void setMidtakeDirection(DcMotorSimple.Direction direction){
         this.midtakeMotor.setDirection(direction);
+    }
+
+    private double fromRPM(double RPM){
+        return RPM * ((((1+(46/17.0))) * (1+(46/17.0))) * (1+(46/17.0)) * 28) / 60;
     }
 
 }
