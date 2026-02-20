@@ -27,7 +27,7 @@ public class Outtake {
     }
 
     public void aimTurret(Pose currentPose, double targetHeading){
-        double servoPosition = (currentPose.getHeading() + targetHeading) % 360;
+        double servoPosition = normalize((currentPose.getHeading() + targetHeading) % 360); // converts from degrees to out of 1
         turretServo.setPosition(servoPosition);
     }
 
@@ -44,7 +44,7 @@ public class Outtake {
     }
 
     public void setPIDFCoefficients(){
-        PIDFCoefficients pc = new PIDFCoefficients(400.0f, 0.0f, 0.0f, 14.0f); // Untuned
+        PIDFCoefficients pc = new PIDFCoefficients(125.0f, 0.0f, 0.0f, 21.1f); // Untuned
         this.outtakeMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pc);
         this.outtakeMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pc);
     }
@@ -52,4 +52,6 @@ public class Outtake {
     public boolean atSpeed() { return this.outtakeMotor.getVelocity(AngleUnit.DEGREES) >= fromRPM(this.targetRPM); };
 
     public static double fromRPM(double rpm) { return rpm * ((((1+(46/17.0))) * (1+(46/17.0))) * 28) / 60; } // The random looking numbers is the encoder forumla
+
+    private static double normalize(double degrees) { return degrees/360; }
 }

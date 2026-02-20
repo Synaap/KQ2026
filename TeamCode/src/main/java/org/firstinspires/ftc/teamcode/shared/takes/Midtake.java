@@ -13,9 +13,9 @@ public class Midtake {
     private Servo lock;
     private ServoController lockController;
     private DcMotorEx midtakeMotor;
-    private double RPS = fromRPM(200);
+    private double RPS = fromRPM(120);
     private final double OPEN_ANGLE = 1.0f/8;
-    private final double CLOSE_ANGLE = 0.0f;
+    private final double CLOSE_ANGLE = 0.01f;
 
 
     public Midtake(HardwareMap hw){
@@ -49,7 +49,7 @@ public class Midtake {
         this.midtakeMotor.setDirection(direction);
     }
 
-    private double fromRPM(double RPM){
+    public static double fromRPM(double RPM){
         return RPM * ((((1+(46/17.0))) * (1+(46/17.0))) * (1+(46/17.0)) * 28) / 60;
     }
 

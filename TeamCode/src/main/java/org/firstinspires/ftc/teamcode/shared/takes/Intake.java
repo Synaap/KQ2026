@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class Intake {
 
     DcMotorEx intakeMotor;
-    private final double RPS = 360.0 * 10.0f;
+    private final double RPS = Midtake.fromRPM(60);
 
     public Intake(HardwareMap hw){
         this.intakeMotor = hw.get(DcMotorEx.class, "intakeMotor");

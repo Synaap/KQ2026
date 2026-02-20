@@ -17,13 +17,12 @@ public class PathBuilder {
 
     // Get a path with the new heading, just rotating it in place.
     public static PathChain getRotationPath(Follower follower, Pose robot, double targetHeading){
+
         Pose newHeading = new Pose(robot.getX(), robot.getY(), targetHeading);
 
         return follower.pathBuilder()
                 .addPath(new BezierLine(robot, newHeading))
                 .build();
-
-
     }
 
     // Get a path to park where we need.

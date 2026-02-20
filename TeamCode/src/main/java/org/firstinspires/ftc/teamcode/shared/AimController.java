@@ -15,7 +15,7 @@ public class AimController {
     private final double wheelRadius;
 
     public AimController(double theta, double slip, double radius){
-        this.exitAngle   = theta;
+        this.exitAngle   = theta; // Degrees
         this.slip        = slip;
         this.wheelRadius = radius; // In
     }
@@ -32,7 +32,6 @@ public class AimController {
     public double targetHeading(Pose robot, Goal goal){
         double targetX = goal == Goal.BLUE ? 144.0f : 0.0f; // Robot X is subtracted later
         double targetY = 144.0f - robot.getY();
-
         targetX -= robot.getX();
         return Math.atan2(targetX, targetY);
     }
@@ -40,7 +39,6 @@ public class AimController {
     private double distance(Pose robot, Goal goal){ // In inches
         double dX = goal == Goal.BLUE ? 144.0f : 0.0f; // Robot X is subtracted later
         double dY = 144.0f - robot.getY();
-
         dX -= robot.getX();
         return Math.hypot(dX, dY);
     }

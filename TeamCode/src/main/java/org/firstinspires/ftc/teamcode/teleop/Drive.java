@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 public class Drive {
     private final Follower follower;
 
-    private boolean fieldCentric = true;  // if true, pass robotCentric=false to setTeleOpDrive
+    private boolean fieldCentric = false;  // if true, pass robotCentric=false to setTeleOpDrive
     private boolean slowMode = false;
     private Double headingLock = null;    // radians; null = free turn
 

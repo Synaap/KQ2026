@@ -84,28 +84,30 @@ public class KQTeleOp extends OpMode {
         telemetry.addData("Pose","(%.1f, %.1f, %.0f°)", p.getX(), p.getY(), Math.toDegrees(p.getHeading()));
         telemetry.update();
 
-        if (gamepad1.right_bumper) {
-            // 1) Snap heading toward goal
+        // Aim turret
+        if (gamepad2.left_bumper) {
             double theta = aimController.targetHeading(p, this.goal);
             outtake.aimTurret(p, theta);
-        } else {
-            // release heading lock when not aiming
-            if (drive.getHeadingLock() != null) drive.setHeadingLock(null);
         }
 
-        // TODO: PLEASE MAKE THIS LOOK PRETTY
-        if (gamepad1.right_trigger > Drive.deadzone) {
+        // Cycle ball
+        if (gamepad2.right_bumper) {
+            outtake.enableOuttake(10);
+            midtake.enableMidtake();
+            midtake.openLock();
+        }
+
+        // Shoot
+        if (gamepad2.right_trigger > Drive.deadzone) {
             this.outtake.enableOuttake(aimController.calculateMotorVelocity(follower.getPose(), this.goal));
-            if(this.outtake.atSpeed())
-                this.midtake.openLock();
-        } else {
+            this.midtake.openLock();
+        } else if (!gamepad2.right_bumper) { // THIS IS SO UGLY EWWWWWW
             this.midtake.closeLock();
             this.outtake.disableOuttake();
         }
 
-        // Close lock, disable
-
-        if (gamepad1.left_trigger > Drive.deadzone) {
+        // Activate Intake, Midtake
+        if (gamepad2.left_trigger > Drive.deadzone) {
             this.intake.enableIntake();
             this.midtake.enableMidtake();
         } else {
@@ -113,12 +115,7 @@ public class KQTeleOp extends OpMode {
             this.midtake.disableMidtake();
         }
 
-        /*
-        if (gamepad1.left_bumper && aligned && ready) {
-            // TODO: actuate your feed/trigger here (servo or motor)
-            // e.g., feeder.setPosition(0.75); sleep 120ms; back to 0.25 (do non-blocking in OpMode!)
-        }
-        */
+        //
 
     }
 
