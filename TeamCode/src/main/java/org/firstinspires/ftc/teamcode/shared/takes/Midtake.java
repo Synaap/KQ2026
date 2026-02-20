@@ -14,23 +14,26 @@ public class Midtake {
     private ServoController lockController;
     private DcMotorEx midtakeMotor;
     private double RPS = fromRPM(120);
-    private final double OPEN_ANGLE = 1.0f/8;
-    private final double CLOSE_ANGLE = 0.01f;
+    private final double OPEN_ANGLE = 0.01f;
+    private final double CLOSE_ANGLE = 1.0f/8;
 
 
     public Midtake(HardwareMap hw){
         this.hw = hw;
         this.lock = hw.get(Servo.class, "lockServo");
+        this.lock.setDirection(Servo.Direction.REVERSE);
         this.midtakeMotor = hw.get(DcMotorEx.class, "midtakeMotor");
         this.setMidtakeDirection(DcMotorSimple.Direction.FORWARD);
         this.closeLock();
     }
     public void openLock(){
-        lock.setPosition(OPEN_ANGLE);
+        lock.getController().pwmEnable();
+        lock.setPosition(CLOSE_ANGLE);
+
     }
 
     public void closeLock(){
-        lock.setPosition(CLOSE_ANGLE);
+        lock.getController().pwmDisable();
     }
 
     public boolean isLockOpen(){
