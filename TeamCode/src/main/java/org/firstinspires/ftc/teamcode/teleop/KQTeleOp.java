@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.shared.takes.Outtake;
 import org.firstinspires.ftc.teamcode.shared.AimController;
 
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Drive – Pedro", group = "T")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Drive – Pedro", group = "2026")
 public class KQTeleOp extends OpMode {
     private Drive drive;
     private Intake intake;
@@ -24,6 +24,8 @@ public class KQTeleOp extends OpMode {
     private Outtake outtake;
     private AimController aimController;
     private Follower follower;
+
+    private final double outtaakeSpeed = 5000;
 
     private Goal goal;
 
@@ -38,6 +40,8 @@ public class KQTeleOp extends OpMode {
         midtake = new Midtake(hardwareMap);
         outtake = new Outtake(hardwareMap); // or pass null if no hood
 
+        midtake.closeLock();
+
         follower = Constants.createFollower(hardwareMap);
 
         aimController = new AimController(58.0f, 0.2f, 0.072f);
@@ -49,6 +53,7 @@ public class KQTeleOp extends OpMode {
 
     @Override public void start() {
         drive.startTeleop(); // required in Pedro 2.x teleop flow
+        outtake.enableOuttake(outtaakeSpeed);
     }
 
 
@@ -74,6 +79,17 @@ public class KQTeleOp extends OpMode {
         if (y && !yPrev) drive.setHeadingLock(null);
         aPrev = a; bPrev = b; xPrev = x; yPrev = y;
 
+        boolean dLeft = gamepad2.dpadLeftWasPressed(),
+                dUp = gamepad2.dpadUpWasPressed(),
+                dRight = gamepad2.dpadRightWasPressed(),
+                dDown = gamepad2.dpad_down,
+                rt = gamepad2.right_trigger > Drive.deadzone,
+                lt = gamepad2.left_trigger > Drive.deadzone,
+                rb = gamepad2.right_bumper,
+                lb = gamepad2.left_bumper,
+                a2 = gamepad2.aWasPressed();
+
+
         drive.drive(fwd, str, trn);
         drive.update();
 
@@ -84,35 +100,57 @@ public class KQTeleOp extends OpMode {
         telemetry.addData("Pose","(%.1f, %.1f, %.0f°)", p.getX(), p.getY(), Math.toDegrees(p.getHeading()));
         telemetry.update();
 
-        // Aim turret
-        if (gamepad2.left_bumper) {
-            double theta = aimController.targetHeading(p, this.goal);
-            outtake.aimTurret(p, theta);
+        // Reverse intake/midtake
+        if (a2) {
+            intake.reverse();
+            midtake.reverse();
+        }
+
+        // D-Pad up toggles turret
+        if (dUp) {
+            if (outtake.isEnabled())
+                outtake.disableOuttake();
+            else
+                outtake.enableOuttake(outtaakeSpeed);
+        }
+
+
+        // D-pad left moves turret 15 degrees left
+        if (lb) {
+
+        }
+
+        // D-pad right moves turret 15 degrees right
+        if (rb) {
+
         }
 
         // Cycle ball
-        if (gamepad2.right_bumper) {
-            outtake.enableOuttake(10);
+        if (dDown) {
+            outtake.enableOuttake(1);
             midtake.enableMidtake();
             midtake.openLock();
         }
 
-        // Shoot
-        if (gamepad2.right_trigger > Drive.deadzone) {
-            this.outtake.enableOuttake(aimController.calculateMotorVelocity(follower.getPose(), this.goal));
+        // Open Lock, Spin Midtake
+        if (rt) {
             this.midtake.openLock();
-        } else if (!gamepad2.right_bumper) { // THIS IS SO UGLY EWWWWWW
-            this.midtake.closeLock();
-            this.outtake.disableOuttake();
+            this.midtake.enableMidtake();
         }
 
         // Activate Intake, Midtake
-        if (gamepad2.left_trigger > Drive.deadzone) {
+        if (lt) {
             this.intake.enableIntake();
             this.midtake.enableMidtake();
-        } else {
+        }
+
+        // Disable the motors
+        if (!lt && !rt && !dDown) {
             this.intake.disableIntake();
             this.midtake.disableMidtake();
+            this.midtake.closeLock();
+            if (this.outtake.isEnabled())
+                this.outtake.enableOuttake(outtaakeSpeed);
         }
 
         //

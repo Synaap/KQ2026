@@ -13,9 +13,11 @@ public class Midtake {
     private Servo lock;
     private ServoController lockController;
     private DcMotorEx midtakeMotor;
+    private boolean enabled = false;
+    private boolean lockOpen = false;
     private double RPS = fromRPM(120);
-    private final double OPEN_ANGLE = 0.01f;
-    private final double CLOSE_ANGLE = 1.0f/8;
+    private final double OPEN_ANGLE = 0.0f;
+    private final double CLOSE_ANGLE = 1/7.0f;
 
 
     public Midtake(HardwareMap hw){
@@ -27,20 +29,23 @@ public class Midtake {
         this.closeLock();
     }
     public void openLock(){
-        lock.getController().pwmEnable();
-        lock.setPosition(CLOSE_ANGLE);
+        if (lockOpen) { return; }
+        lock.setPosition(OPEN_ANGLE);
+        lockOpen = true;
 
     }
 
     public void closeLock(){
-        lock.getController().pwmDisable();
+        lock.setPosition(CLOSE_ANGLE);
+        lockOpen = false;
     }
 
-    public boolean isLockOpen(){
-        return Math.abs(lock.getPosition() - OPEN_ANGLE) < 0.1f;
-    }
+    public boolean isLockOpen() { return lockOpen; }
+
+    public boolean isEnabled() { return enabled; }
 
     public void enableMidtake(){
+        if (enabled) { return; }
         this.midtakeMotor.setVelocity(RPS, AngleUnit.DEGREES);
     }
 
@@ -50,6 +55,13 @@ public class Midtake {
 
     public void setMidtakeDirection(DcMotorSimple.Direction direction){
         this.midtakeMotor.setDirection(direction);
+    }
+
+    public void reverse() {
+        if (this.midtakeMotor.getDirection() == DcMotorSimple.Direction.FORWARD)
+            this.setMidtakeDirection(DcMotorSimple.Direction.REVERSE);
+        else
+            this.setMidtakeDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     public static double fromRPM(double RPM){

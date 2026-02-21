@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class Outtake {
 
     private double targetRPM;
+    private boolean enabled;
 
     DcMotorEx outtakeMotor;
     DcMotorEx outtakeMotor2;
@@ -32,15 +33,18 @@ public class Outtake {
     }
 
     public void enableOuttake(double rpm){
+        if (enabled && rpm == targetRPM) { return; }
         this.targetRPM = rpm;
         this.outtakeMotor.setVelocity(fromRPM(rpm), AngleUnit.DEGREES);
         this.outtakeMotor2.setVelocity(fromRPM(rpm), AngleUnit.DEGREES);
+        this.enabled = true;
     }
 
     public void disableOuttake(){
         this.targetRPM = 0;
         this.outtakeMotor.setPower(0.0);
         this.outtakeMotor2.setPower(0.0);
+        this.enabled = false;
     }
 
     public void setPIDFCoefficients(){
@@ -54,4 +58,6 @@ public class Outtake {
     public static double fromRPM(double rpm) { return rpm * ((((1+(46/17.0))) * (1+(46/17.0))) * 28) / 60; } // The random looking numbers is the encoder forumla
 
     private static double normalize(double degrees) { return degrees/360; }
+
+    public boolean isEnabled() { return this.enabled; }
 }

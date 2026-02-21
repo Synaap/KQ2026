@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.shared.takes.Outtake;
 
 import java.util.ArrayList;
 
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Flywheel Tuner", group = "2026")
 public class FlywheelTuner extends OpMode {
 
     private double offsets[] = {0.01, 0.1, 1, 10, 100};
