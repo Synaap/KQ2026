@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -18,18 +19,22 @@ import org.firstinspires.ftc.teamcode.shared.AimController;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Drive – Pedro", group = "2026")
 public class KQTeleOp extends OpMode {
+
     private Drive drive;
     private Intake intake;
     private Midtake midtake;
     private Outtake outtake;
-    private AimController aimController;
+    private AimController aimController; // Removed usage to simplify debugging cuz delayed
     private Follower follower;
 
-    private final double outtaakeSpeed = 5000;
+    private double turret_power = 0.5;
+    private final double outtakeSpeedHigh = 10000.0;
+    private final double outtakeSpeedLow = 5000.0;
+    private double outtakeSpeed = outtakeSpeedHigh;
 
     private Goal goal;
 
-    private boolean aPrev, bPrev, xPrev, yPrev, following;
+    private boolean aPrev, bPrev, xPrev, yPrev, lbPrev, rbPrev, following;
 
     @Override public void init() {
         drive = new Drive(hardwareMap);
@@ -38,11 +43,12 @@ public class KQTeleOp extends OpMode {
 
         intake = new Intake(hardwareMap);
         midtake = new Midtake(hardwareMap);
-        outtake = new Outtake(hardwareMap); // or pass null if no hood
+        outtake = new Outtake(hardwareMap);
 
         midtake.closeLock();
 
         follower = Constants.createFollower(hardwareMap);
+        follower.setPose(new Pose(99, 7, Math.toRadians(0))); // Starting pose
 
         aimController = new AimController(58.0f, 0.2f, 0.072f);
 
@@ -53,7 +59,7 @@ public class KQTeleOp extends OpMode {
 
     @Override public void start() {
         drive.startTeleop(); // required in Pedro 2.x teleop flow
-        outtake.enableOuttake(outtaakeSpeed);
+        outtake.enableOuttake(outtakeSpeed);
     }
 
 
@@ -87,7 +93,8 @@ public class KQTeleOp extends OpMode {
                 lt = gamepad2.left_trigger > Drive.deadzone,
                 rb = gamepad2.right_bumper,
                 lb = gamepad2.left_bumper,
-                a2 = gamepad2.aWasPressed();
+                a2 = gamepad2.aWasPressed(),
+                x2 = gamepad2.xWasPressed();
 
 
         drive.drive(fwd, str, trn);
@@ -98,6 +105,9 @@ public class KQTeleOp extends OpMode {
         telemetry.addData("Slow", drive.isSlowMode());
         telemetry.addData("Lock", drive.getHeadingLock()==null? "free" : Math.toDegrees(drive.getHeadingLock()));
         telemetry.addData("Pose","(%.1f, %.1f, %.0f°)", p.getX(), p.getY(), Math.toDegrees(p.getHeading()));
+        telemetry.addData("Turret Power", turret_power);
+        telemetry.addData("Target RPM", outtakeSpeed);
+        telemetry.addData("Reversed", intake.getDirection() == DcMotorSimple.Direction.REVERSE);
         telemetry.update();
 
         // Reverse intake/midtake
@@ -106,28 +116,34 @@ public class KQTeleOp extends OpMode {
             midtake.reverse();
         }
 
+        // Switch far/close
+        if (x2) {
+            outtakeSpeed = outtakeSpeed == outtakeSpeedHigh ? outtakeSpeedLow : outtakeSpeedHigh;
+        }
+
         // D-Pad up toggles turret
         if (dUp) {
             if (outtake.isEnabled())
                 outtake.disableOuttake();
             else
-                outtake.enableOuttake(outtaakeSpeed);
+                outtake.enableOuttake(outtakeSpeed);
         }
 
 
         // D-pad left moves turret 15 degrees left
         if (lb) {
-
+            outtake.aimTurret(turret_power);
         }
+
 
         // D-pad right moves turret 15 degrees right
-        if (rb) {
+        else if (rb) {
+            outtake.aimTurret(-turret_power);
 
-        }
-
+        } else{outtake.aimTurret(0.0);}
         // Cycle ball
         if (dDown) {
-            outtake.enableOuttake(1);
+            outtake.enableOuttake(0.09);
             midtake.enableMidtake();
             midtake.openLock();
         }
@@ -150,10 +166,13 @@ public class KQTeleOp extends OpMode {
             this.midtake.disableMidtake();
             this.midtake.closeLock();
             if (this.outtake.isEnabled())
-                this.outtake.enableOuttake(outtaakeSpeed);
+                this.outtake.enableOuttake(outtakeSpeed);
         }
 
         //
+
+        lbPrev = lb;
+        rbPrev = rb;
 
     }
 

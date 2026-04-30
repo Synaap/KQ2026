@@ -66,7 +66,7 @@ public class FlywheelTuner extends OpMode {
 
         PIDFCoefficients coefficients = new PIDFCoefficients(p, 0.0, 0.0, f);
         flywheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
-        flywheel.setVelocity(Outtake.fromRPM(targetRPM));
+        flywheel.setPower(Outtake.fromRPM(targetRPM, 6000));
 
     }
 

@@ -1,46 +1,52 @@
 package org.firstinspires.ftc.teamcode.shared.takes;
 
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImpl;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class Outtake {
 
     private double targetRPM;
+    private final double maxRPM = 6000;
     private boolean enabled;
 
     DcMotorEx outtakeMotor;
     DcMotorEx outtakeMotor2;
-    Servo turretServo;
+    CRServo turretServo;
 
     public Outtake(HardwareMap hw){
-        this.turretServo = hw.get(Servo.class, "turretServo");
+        this.turretServo = hw.get(CRServo.class, "turretServo");
         this.outtakeMotor = hw.get(DcMotorEx.class, "outtakeMotor");
         this.outtakeMotor2 = hw.get(DcMotorEx.class, "outtakeMotor2");
         this.outtakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         this.setPIDFCoefficients();
     }
 
-    public void aimTurret(Pose currentPose, double targetHeading){
-        double servoPosition = normalize((currentPose.getHeading() + targetHeading) % 360); // converts from degrees to out of 1
-        turretServo.setPosition(servoPosition);
+    public void aimTurret(double power){ // -1, to 1
+        if (this.turretServo.getPower() == power) { return; }
+        this.turretServo.setPower(power);
     }
 
     public void enableOuttake(double rpm){
         if (enabled && rpm == targetRPM) { return; }
         this.targetRPM = rpm;
-        this.outtakeMotor.setVelocity(fromRPM(rpm), AngleUnit.DEGREES);
-        this.outtakeMotor2.setVelocity(fromRPM(rpm), AngleUnit.DEGREES);
+        this.outtakeMotor.setPower(fromRPM(rpm, maxRPM));
+        this.outtakeMotor2.setPower(fromRPM(rpm, maxRPM));
         this.enabled = true;
     }
 
     public void disableOuttake(){
+        if (!enabled) { return; }
         this.targetRPM = 0;
         this.outtakeMotor.setPower(0.0);
         this.outtakeMotor2.setPower(0.0);
@@ -53,11 +59,11 @@ public class Outtake {
         this.outtakeMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pc);
     }
 
-    public boolean atSpeed() { return this.outtakeMotor.getVelocity(AngleUnit.DEGREES) >= fromRPM(this.targetRPM); };
+    public boolean atSpeed() { return this.outtakeMotor.getPower() >= fromRPM(this.targetRPM, maxRPM); };
 
-    public static double fromRPM(double rpm) { return rpm * ((((1+(46/17.0))) * (1+(46/17.0))) * 28) / 60; } // The random looking numbers is the encoder forumla
+    public static double fromRPM(double rpm, double max) { return rpm/max; } // The random looking numbers is the encoder forumla
 
-    private static double normalize(double degrees) { return degrees/360; }
+    private static double normalize(double degrees) { return degrees/180; }
 
     public boolean isEnabled() { return this.enabled; }
 }

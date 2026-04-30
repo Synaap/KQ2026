@@ -15,7 +15,8 @@ public class Midtake {
     private DcMotorEx midtakeMotor;
     private boolean enabled = false;
     private boolean lockOpen = false;
-    private double RPS = fromRPM(120);
+    private double RPM = 435.0;
+    private double maxRPM = 435.0;
     private final double OPEN_ANGLE = 0.0f;
     private final double CLOSE_ANGLE = 1/7.0f;
 
@@ -46,11 +47,14 @@ public class Midtake {
 
     public void enableMidtake(){
         if (enabled) { return; }
-        this.midtakeMotor.setVelocity(RPS, AngleUnit.DEGREES);
+        this.midtakeMotor.setPower(fromRPM(RPM,maxRPM));
+        this.enabled = true;
     }
 
     public void disableMidtake(){
+        if (!enabled) { return; }
         this.midtakeMotor.setPower(0.0f);
+        this.enabled = false;
     }
 
     public void setMidtakeDirection(DcMotorSimple.Direction direction){
@@ -64,8 +68,8 @@ public class Midtake {
             this.setMidtakeDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    public static double fromRPM(double RPM){
-        return RPM * ((((1+(46/17.0))) * (1+(46/17.0))) * (1+(46/17.0)) * 28) / 60;
+    public static double fromRPM(double rpm, double max){
+        return rpm/max;
     }
 
 }
